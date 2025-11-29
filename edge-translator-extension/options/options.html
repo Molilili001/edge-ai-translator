@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edge AI Translator 设置</title>
+  <style>
+    :root { --bg:#0b1220; --panel:#111827; --fg:#e5e7eb; --muted:#9ca3af; --border:#1f2937; --accent:#60a5fa; --danger:#ef4444; }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:24px; font-family: system-ui,-apple-system,'Segoe UI',Roboto,Arial; background: var(--bg); color: var(--fg); }
+    h1 { margin: 0 0 16px; font-size: 20px; }
+    p.hint { color: var(--muted); margin-top:0; }
+    .panel { background: var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
+    label { display:block; font-size:12px; color: var(--muted); margin:10px 0 6px; }
+    input[type="text"], input[type="password"], textarea, select {
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
+      background:#0a0f1c; color:var(--fg); font-size:14px; outline:none;
+    }
+    textarea { min-height: 90px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+    .row { display:flex; gap:12px; }
+    .row > .col { flex:1; }
+    .actions { display:flex; gap:12px; }
+    button {
+      appearance:none; border:1px solid var(--border); background:#0a0f1c; color:var(--fg);
+      padding:10px 14px; border-radius:10px; cursor:pointer; transition: border-color .15s, background .15s, transform .02s;
+    }
+    button:hover { border-color: var(--accent); background:#0f1629; }
+    button:active { transform: translateY(1px); }
+    .danger:hover { border-color: var(--danger); background:#1a0e12; }
+    .status { margin-top:10px; font-size:12px; color: var(--muted); min-height:18px; }
+    .test-box { display:grid; grid-template-columns: 1fr auto; gap:12px; align-items: start; }
+    pre.output { margin:0; background:#0a0f1c; border:1px solid var(--border); border-radius:8px; padding:10px; white-space: pre-wrap; word-break: break-word; }
+    code.kbd { background:#0a0f1c; border:1px solid var(--border); border-radius:6px; padding:2px 6px; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace; }
+  </style>
+</head>
+<body>
+  <h1>Edge AI Translator 设置</h1>
+  <p class="hint">配置你的自定义翻译 API 与工作流。未配置 endpoint 时，扩展将使用演示模式返回 [demo] 前缀结果以验证链路。</p>
+
+  <div class="panel">
+    <h2>Provider</h2>
+    <div class="row">
+      <div class="col">
+        <label for="providerType">Provider 类型</label>
+        <select id="providerType">
+          <option value="custom">custom（自定义 JSON 接口）</option>
+          <option value="openai-compatible">openai-compatible（/v1/chat/completions）</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label for="endpoint">Endpoint URL</label>
+        <input id="endpoint" type="text" placeholder="https://your.api/translate 或 https://api.openai.com/v1/chat/completions" />
+      </div>
+      <div class="col">
+        <label for="model">Model（可选）</label>
+        <input id="model" type="text" placeholder="gpt-4o-mini, gpt-3.5-turbo, qwen2, etc." />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label for="apiKey">API Key</label>
+        <input id="apiKey" type="password" placeholder="留空表示不使用鉴权（openai-compatible 必填）" />
+      </div>
+      <div class="col">
+        <label for="headers">Headers JSON（可选）</label>
+        <textarea id="headers" placeholder='{"x-foo":"bar"}'></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Provider 高级（限速 / 重试 / 批处理 / 缓存）</h2>
+
+    <h3 style="margin-top:6px;">限速</h3>
+    <div class="row">
+      <div class="col">
+        <label for="providerLimitsMaxConcurrent">最大并发（maxConcurrent）</label>
+        <input id="providerLimitsMaxConcurrent" type="text" placeholder="默认 2" />
+      </div>
+      <div class="col">
+        <label for="providerLimitsRps">每秒请求速率（rps）</label>
+        <input id="providerLimitsRps" type="text" placeholder="默认 1" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label for="providerLimitsBurst">突发容量（burst）</label>
+        <input id="providerLimitsBurst" type="text" placeholder="默认 2" />
+      </div>
+      <div class="col">
+        <label for="providerLimitsJitterMs">抖动（jitterMs）</label>
+        <input id="providerLimitsJitterMs" type="text" placeholder="例如 50,200 或 单个数值 100" />
+      </div>
+    </div>
+
+    <h3 style="margin-top:10px;">重试</h3>
+    <div class="row">
+      <div class="col">
+        <label for="providerRetryMaxRetries">最大重试次数（maxRetries）</label>
+        <input id="providerRetryMaxRetries" type="text" placeholder="默认 5" />
+      </div>
+      <div class="col">
+        <label for="providerRetryBaseDelayMs">初始等待（baseDelayMs, ms）</label>
+        <input id="providerRetryBaseDelayMs" type="text" placeholder="默认 800" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label for="providerRetryMaxDelayMs">最大等待（maxDelayMs, ms）</label>
+        <input id="providerRetryMaxDelayMs" type="text" placeholder="默认 20000" />
+      </div>
+      <div class="col">
+        <label for="providerRetryRetryOn">可重试状态码（retryOn）</label>
+        <input id="providerRetryRetryOn" type="text" placeholder="JSON 数组或逗号分隔，如 429,500,502,503,504" />
+      </div>
+    </div>
+    <label><input id="providerRetryJitter" type="checkbox" /> 开启重试抖动（jitter）</label>
+
+    <h3 style="margin-top:10px;">批处理</h3>
+    <label><input id="providerBatchingEnabled" type="checkbox" checked /> 启用批处理（合并多段为一次请求）</label>
+    <div class="row">
+      <div class="col">
+        <label for="providerBatchingMode">批处理模式（mode）</label>
+        <select id="providerBatchingMode">
+          <option value="json-array">json-array（严格返回 JSON 数组）</option>
+          <option value="off">off（关闭，仅用于兼容调试）</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="providerBatchingMaxItems">每批最大条数（maxItems）</label>
+        <input id="providerBatchingMaxItems" type="text" placeholder="默认 20" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label for="providerBatchingMaxChars">每批最大字符数（maxChars）</label>
+        <input id="providerBatchingMaxChars" type="text" placeholder="默认 8000" />
+      </div>
+      <div class="col">
+        <label for="providerBatchingTokenBudget">Token 预算（tokenBudget）</label>
+        <input id="providerBatchingTokenBudget" type="text" placeholder="默认 2000（粗略估算）" />
+      </div>
+    </div>
+
+    <h3 style="margin-top:10px;">缓存</h3>
+    <label><input id="cacheEnabled" type="checkbox" checked /> 启用缓存（命中则不再请求）</label>
+    <div class="row">
+      <div class="col">
+        <label for="cacheSize">容量（size, 条）</label>
+        <input id="cacheSize" type="text" placeholder="默认 500" />
+      </div>
+      <div class="col">
+        <label for="cacheTtlMs">有效期（ttlMs, ms）</label>
+        <input id="cacheTtlMs" type="text" placeholder="默认 43200000（12 小时）" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Workflow 进阶</h2>
+    <div class="row">
+      <div class="col">
+        <label for="workflowMode">工作流模式（mode）</label>
+        <select id="workflowMode">
+          <option value="single-call">single-call（单次调用）</option>
+          <option value="multi-step">multi-step（多步串行，默认关闭）</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="responseFormat">返回格式（responseFormat）</label>
+        <select id="responseFormat">
+          <option value="auto">auto</option>
+          <option value="json">json</option>
+          <option value="text">text</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="style">风格（style）</label>
+        <input id="style" type="text" placeholder="例如：简洁准确，保留格式与占位符" />
+      </div>
+      <div class="col">
+        <label for="tone">语气（tone）</label>
+        <input id="tone" type="text" placeholder="例如：中性" />
+      </div>
+    </div>
+
+    <label for="promptTemplate">系统提示模板（promptTemplate，可用 {{sourceLang}} {{targetLang}} {{glossary}} {{style}} {{tone}} {{jsonConstraint}}）</label>
+    <textarea id="promptTemplate" placeholder="留空使用内置模板"></textarea>
+
+    <label for="glossary">术语表（glossary，JSON 数组：[{&quot;src&quot;:&quot;Neural Network&quot;,&quot;dst&quot;:&quot;神经网络&quot;}...]）</label>
+    <textarea id="glossary" placeholder='[]'></textarea>
+
+    <div class="row">
+      <div class="col">
+        <label><input id="protectPlaceholders" type="checkbox" checked /> 保护占位符/标签/变量（protectPlaceholders）</label>
+      </div>
+      <div class="col">
+        <label><input id="skipIfSourceEqualsTarget" type="checkbox" checked /> 源语与目标语相同则跳过（skipIfSourceEqualsTarget）</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="minTextLength">最小长度（minTextLength）</label>
+        <input id="minTextLength" type="text" placeholder="默认 2" />
+      </div>
+      <div class="col"></div>
+    </div>
+
+    <h3 style="margin-top:10px;">风控噪声（Noise injection）</h3>
+    <label><input id="workflowNoiseEnabled" type="checkbox" /> 启用随机噪声（降低高频请求特征；仅对 openai-compatible 生效）</label>
+
+    <div class="row">
+      <div class="col">
+        <label for="workflowNoisePosition">注入位置（position）</label>
+        <select id="workflowNoisePosition">
+          <option value="system">system（追加到系统提示）</option>
+          <option value="user_suffix">user_suffix（仅单条模式：追加到用户文本尾部）</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="workflowNoiseProbability">注入概率（0–1, probability）</label>
+        <input id="workflowNoiseProbability" type="text" placeholder="默认 0.6" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="workflowNoiseMinWords">最少词数（minWords）</label>
+        <input id="workflowNoiseMinWords" type="text" placeholder="默认 3" />
+      </div>
+      <div class="col">
+        <label for="workflowNoiseMaxWords">最多词数（maxWords）</label>
+        <input id="workflowNoiseMaxWords" type="text" placeholder="默认 8" />
+      </div>
+    </div>
+
+    <label for="workflowNoiseTemplate">噪声模板（template，使用 {{noise}} 占位符）</label>
+    <input id="workflowNoiseTemplate" type="text" placeholder="--- NOISE --- {{noise}}" />
+
+    <label for="workflowNoiseDictionary">噪声词典（dictionary，JSON 数组）</label>
+    <textarea id="workflowNoiseDictionary" placeholder='["alpha","beta","gamma"]'></textarea>
+
+    <p class="hint">说明：批处理模式为保证 JSON 解析稳定，只在 system 注入；单条模式可选择追加到用户文本尾部。系统提示会加入“请忽略噪声”的说明，不影响翻译质量。</p>
+  </div>
+
+  <div class="panel">
+    <h2>Workflow</h2>
+    <div class="row">
+      <div class="col">
+        <label for="sourceLang">源语言</label>
+        <select id="sourceLang">
+          <option value="auto">auto</option>
+          <option value="en">en</option>
+          <option value="zh">zh</option>
+          <option value="ja">ja</option>
+          <option value="ko">ko</option>
+          <option value="de">de</option>
+          <option value="fr">fr</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="targetLang">目标语言</label>
+        <input id="targetLang" type="text" placeholder="zh-CN" />
+      </div>
+    </div>
+    <label for="steps">步骤 JSON（数组）</label>
+    <textarea id="steps">["translate"]</textarea>
+  </div>
+
+  <div class="panel">
+    <h2>行为</h2>
+    <label><input id="selectionShowBubble" type="checkbox" /> 划词后显示气泡卡片</label>
+
+    <div class="row" style="margin-top:8px;">
+      <div class="col">
+        <label for="behaviorDynamicFlushMaxItems">动态 flush 最大批量（dynamicFlushMaxItems）</label>
+        <input id="behaviorDynamicFlushMaxItems" type="text" placeholder="默认 40，范围 5–80" />
+      </div>
+      <div class="col">
+        <label for="behaviorDynamicFlushWindowMs">动态 flush 窗口（ms, dynamicFlushWindowMs）</label>
+        <input id="behaviorDynamicFlushWindowMs" type="text" placeholder="默认 300，范围 100–2000" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="behaviorPageInitialBatchSize">首轮批处理大小（pageInitialBatchSize）</label>
+        <input id="behaviorPageInitialBatchSize" type="text" placeholder="默认 40，范围 10–80" />
+      </div>
+      <div class="col">
+        <label for="behaviorDynamicObserveMs">动态监听时长（ms, dynamicObserveMs）</label>
+        <input id="behaviorDynamicObserveMs" type="text" placeholder="默认 10000，范围 2000–60000" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>保存与测试</h2>
+    <div class="actions">
+      <button id="saveBtn">保存配置</button>
+      <button id="resetBtn" class="danger">恢复默认</button>
+    </div>
+    <div class="status" id="status"></div>
+    <h3>测试翻译</h3>
+    <div class="test-box">
+      <textarea id="testInput" placeholder="输入要测试的文本…"></textarea>
+      <button id="testBtn">测试</button>
+    </div>
+    <div style="margin-top:10px;">
+      <pre class="output" id="testOut"></pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>快捷键</h2>
+    <p class="hint">整页翻译：<code class="kbd">Alt+Shift+T</code>，划词翻译：<code class="kbd">Alt+Shift+S</code>。可在 Edge 扩展的“键盘快捷方式”中自定义。</p>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "Edge AI Translator",
+  "version": "0.1.0",
+  "description": "Translate entire pages and selected text via custom AI API and workflows.",
+  "action": {
+    "default_title": "Translate with AI",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "src/content.js"
+      ],
+      "css": [
+        "src/overlay.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+  "options_page": "options/options.html",
+  "commands": {
+    "translate_page": {
+      "suggested_key": {
+        "default": "Alt+Shift+T"
+      },
+      "description": "Translate entire page"
+    },
+    "translate_selection": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Translate selected text"
+    }
+  }
+}

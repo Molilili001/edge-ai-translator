@@ -1,0 +1,254 @@
+/* Edge AI Translator overlay styles */
+
+:root {
+  --edge-ai-z: 2147483000; /* very high to avoid collision */
+  --edge-ai-radius: 10px;
+  --edge-ai-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+  --edge-ai-bg: #111827;
+  --edge-ai-fg: #e5e7eb;
+  --edge-ai-accent: #60a5fa;
+  --edge-ai-border: #1f2937;
+  --edge-ai-muted: #9ca3af;
+  --edge-ai-danger: #ef4444;
+
+  --edge-ai-banner-bg: rgba(17, 24, 39, 0.96);
+  --edge-ai-banner-fg: #e5e7eb;
+}
+
+/* Selection bubble */
+.edge-ai-translator-bubble {
+  position: absolute;
+  z-index: var(--edge-ai-z);
+  left: 0;
+  top: 0;
+  max-width: min(640px, calc(100vw - 24px));
+  color: var(--edge-ai-fg);
+  background: var(--edge-ai-bg);
+  border: 1px solid var(--edge-ai-border);
+  border-radius: var(--edge-ai-radius);
+  box-shadow: var(--edge-ai-shadow);
+  padding: 0;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.edge-ai-bubble-content {
+  display: grid;
+  grid-template-rows: auto auto;
+}
+
+.edge-ai-bubble-body {
+  padding: 12px 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.edge-ai-bubble-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--edge-ai-border);
+  background: rgba(255,255,255,0.02);
+}
+
+.edge-ai-bubble-actions button {
+  appearance: none;
+  border: 1px solid var(--edge-ai-border);
+  background: #0b1220;
+  color: var(--edge-ai-fg);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, transform .02s ease;
+  font-size: 12px;
+}
+
+.edge-ai-bubble-actions button:hover {
+  border-color: var(--edge-ai-accent);
+  background: #0f1629;
+}
+
+.edge-ai-bubble-actions button:active {
+  transform: translateY(1px);
+}
+
+/* Loading indicator */
+.edge-ai-loading {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--edge-ai-muted);
+  border-top-color: var(--edge-ai-accent);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: edge-ai-spin 0.9s linear infinite;
+  vertical-align: -2px;
+}
+
+@keyframes edge-ai-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Top banner for page translation */
+.edge-ai-translator-banner {
+  position: fixed;
+  z-index: var(--edge-ai-z);
+  left: 12px;
+  right: 12px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--edge-ai-banner-bg);
+  color: var(--edge-ai-banner-fg);
+  border: 1px solid var(--edge-ai-border);
+  border-radius: 10px;
+  backdrop-filter: saturate(140%) blur(6px);
+  box-shadow: var(--edge-ai-shadow);
+}
+
+.edge-ai-banner-text {
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edge-ai-banner-cancel {
+  appearance: none;
+  border: 1px solid var(--edge-ai-border);
+  background: #0b1220;
+  color: var(--edge-ai-fg);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, transform .02s ease;
+  font-size: 12px;
+}
+
+.edge-ai-banner-cancel:hover {
+  border-color: var(--edge-ai-danger);
+  background: #1a0e12;
+}
+
+.edge-ai-banner-cancel:active {
+  transform: translateY(1px);
+}
+
+/* Prefer dark-friendly looks but respect page fonts */
+.edge-ai-translator-bubble, .edge-ai-translator-banner {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reduce interference with page layout elements underneath */
+.edge-ai-translator-bubble * {
+  pointer-events: auto;
+}
+/* --- New draggable header & split source/target layout --- */
+
+.edge-ai-bubble-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--edge-ai-border);
+  background: rgba(255,255,255,0.02);
+  cursor: move;           /* drag handle */
+  user-select: none;
+}
+
+.edge-ai-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--edge-ai-fg);
+  letter-spacing: 0.2px;
+}
+
+.edge-ai-close {
+  appearance: none;
+  border: 1px solid var(--edge-ai-border);
+  background: #0b1220;
+  color: var(--edge-ai-fg);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, transform .02s ease;
+  font-size: 16px;
+  line-height: 1;
+}
+.edge-ai-close:hover {
+  border-color: var(--edge-ai-danger);
+  background: #1a0e12;
+}
+.edge-ai-close:active {
+  transform: translateY(1px);
+}
+
+/* Override body to split into two panes */
+.edge-ai-bubble-body {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  grid-auto-rows: minmax(120px, auto);
+  gap: 0;
+  padding: 12px 14px;
+}
+
+.edge-ai-bubble-src,
+.edge-ai-bubble-dst {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #0b1220;
+  border: 1px solid var(--edge-ai-border);
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 120px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.edge-ai-bubble-src {
+  outline: none;
+  caret-color: var(--edge-ai-accent);
+}
+
+.edge-ai-bubble-dst {
+  user-select: text;
+}
+
+.edge-ai-bubble-sep {
+  width: 100%;
+  height: 100%;
+  background: var(--edge-ai-border);
+}
+
+/* Quick translate button near text selection */
+.edge-ai-quick-btn {
+  position: fixed;
+  z-index: var(--edge-ai-z);
+  appearance: none;
+  border: 1px solid var(--edge-ai-border);
+  background: #0b1220;
+  color: var(--edge-ai-fg);
+  padding: 6px 10px;
+  border-radius: 9999px;
+  box-shadow: var(--edge-ai-shadow);
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, transform .02s ease;
+  font-size: 12px;
+  line-height: 1;
+}
+.edge-ai-quick-btn:hover {
+  border-color: var(--edge-ai-accent);
+  background: #0f1629;
+}
+.edge-ai-quick-btn:active {
+  transform: translateY(1px);
+}
