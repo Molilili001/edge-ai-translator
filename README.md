@@ -193,5 +193,4 @@ API 兼容说明
 
 
 联系方式
-- 可通过 GitHub Issue 反馈使用问题与建议。#   e d g e - a i - t r a n s l a t o r  
- 
+- 可通过 GitHub Issue 反馈使用问题与建议。#
