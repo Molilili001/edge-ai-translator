@@ -252,3 +252,106 @@
 .edge-ai-quick-btn:active {
   transform: translateY(1px);
 }
+
+/* Immersive translation indicator */
+.edge-ai-immersive-indicator {
+  position: fixed;
+  z-index: var(--edge-ai-z);
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(17, 24, 39, 0.96);
+  color: var(--edge-ai-fg);
+  border: 1px solid var(--edge-ai-border);
+  border-radius: 9999px;
+  box-shadow: var(--edge-ai-shadow);
+  backdrop-filter: saturate(140%) blur(6px);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+}
+
+.edge-ai-immersive-text {
+  color: var(--edge-ai-fg);
+  opacity: 0.92;
+}
+
+.edge-ai-immersive-stop,
+.edge-ai-immersive-priority {
+  appearance: none;
+  border: 1px solid var(--edge-ai-border);
+  background: #0b1220;
+  color: var(--edge-ai-fg);
+  padding: 6px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, transform .02s ease;
+  font-size: 12px;
+}
+
+.edge-ai-immersive-priority:hover {
+  border-color: var(--edge-ai-accent);
+  background: #0f1629;
+}
+
+.edge-ai-immersive-stop:hover {
+  border-color: var(--edge-ai-danger);
+  background: #1a0e12;
+}
+
+.edge-ai-immersive-stop:active,
+.edge-ai-immersive-priority:active {
+  transform: translateY(1px);
+}
+
+.edge-ai-immersive-block-marker {
+  position: fixed;
+  z-index: var(--edge-ai-z);
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(96, 165, 250, 0.75);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
+}
+
+.edge-ai-immersive-block-marker::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  border: 2px solid rgba(96, 165, 250, 0.28);
+  border-top-color: #2563eb;
+  animation: edge-ai-spin 0.75s linear infinite;
+  box-sizing: border-box;
+}
+
+.edge-ai-immersive-region-overlay {
+  position: fixed;
+  z-index: var(--edge-ai-z);
+  inset: 0;
+  cursor: crosshair;
+  pointer-events: auto;
+  user-select: none;
+  background: transparent;
+}
+
+.edge-ai-immersive-region-box {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border: 2px solid #2563eb;
+  background: rgba(37, 99, 235, 0.14);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+  pointer-events: none;
+  box-sizing: border-box;
+}
