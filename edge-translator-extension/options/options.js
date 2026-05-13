@@ -47,6 +47,7 @@ const DEFAULT_CONFIG = {
   },
   behavior: {
     selectionShowBubble: true,
+    immersiveEnabled: false,
     dynamicFlushMaxItems: 40,
     dynamicFlushWindowMs: 300,
     pageInitialBatchSize: 40,
@@ -213,6 +214,7 @@ async function loadConfigUI(){
 
     // Behavior
     if ($('selectionShowBubble')) $('selectionShowBubble').checked = !!(cfg?.behavior?.selectionShowBubble ?? true);
+    if ($('immersiveEnabled')) $('immersiveEnabled').checked = !!(cfg?.behavior?.immersiveEnabled ?? false);
     if ($('behaviorDynamicFlushMaxItems')) $('behaviorDynamicFlushMaxItems').value = String((cfg?.behavior?.dynamicFlushMaxItems ?? 40));
     if ($('behaviorDynamicFlushWindowMs')) $('behaviorDynamicFlushWindowMs').value = String((cfg?.behavior?.dynamicFlushWindowMs ?? 300));
     if ($('behaviorPageInitialBatchSize')) $('behaviorPageInitialBatchSize').value = String((cfg?.behavior?.pageInitialBatchSize ?? 40));
@@ -310,6 +312,7 @@ async function saveConfigUI(){
     // Behavior dynamic + clamps
     const behavior = {
       selectionShowBubble: !!$('selectionShowBubble')?.checked,
+      immersiveEnabled: !!$('immersiveEnabled')?.checked,
       dynamicFlushMaxItems: clampInt(parseNumber($('behaviorDynamicFlushMaxItems')?.value, 40), 5, 80),
       dynamicFlushWindowMs: clampInt(parseNumber($('behaviorDynamicFlushWindowMs')?.value, 300), 100, 2000),
       pageInitialBatchSize: clampInt(parseNumber($('behaviorPageInitialBatchSize')?.value, 40), 10, 80),

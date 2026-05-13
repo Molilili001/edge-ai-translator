@@ -56,7 +56,12 @@ const DEFAULT_CONFIG = {
     ttlMs: 12 * 60 * 60 * 1000
   },
   behavior: {
-    selectionShowBubble: true
+    selectionShowBubble: true,
+    immersiveEnabled: false,
+    dynamicFlushMaxItems: 40,
+    dynamicFlushWindowMs: 300,
+    pageInitialBatchSize: 40,
+    dynamicObserveMs: 10000
   }
 };
 

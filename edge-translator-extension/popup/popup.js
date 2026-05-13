@@ -2,6 +2,9 @@
 const MSG = {
   TRANSLATE_PAGE: 'TRANSLATE_PAGE',
   TRANSLATE_SELECTION: 'TRANSLATE_SELECTION',
+  START_IMMERSIVE_TRANSLATION: 'START_IMMERSIVE_TRANSLATION',
+  STOP_IMMERSIVE_TRANSLATION: 'STOP_IMMERSIVE_TRANSLATION',
+  GET_IMMERSIVE_STATUS: 'GET_IMMERSIVE_STATUS',
   LOAD_CONFIG: 'LOAD_CONFIG',
   SAVE_CONFIG: 'SAVE_CONFIG'
 };
@@ -61,6 +64,21 @@ function canInject(url) {
   if (/^file:/i.test(url)) return true;
   if (/^about:blank$/i.test(url)) return true;
   return false;
+}
+
+let immersiveActive = false;
+
+function setImmersiveButtonState(active, initializing = false) {
+  immersiveActive = !!active;
+  const btn = $('toggleImmersiveBtn');
+  if (!btn) return;
+  if (initializing) {
+    btn.textContent = '沉浸翻译启动中…';
+    btn.disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = immersiveActive ? '关闭沉浸翻译' : '开启沉浸翻译';
 }
 
 async function pingContent(tabId) {
@@ -123,6 +141,59 @@ async function triggerTranslateSelection() {
   }
 }
 
+async function getImmersiveStatus(tab) {
+  if (!tab?.id) return { ok: false };
+  try {
+    // Target top frame to avoid iframe responses
+    const resp = await chrome.tabs.sendMessage(tab.id, { type: MSG.GET_IMMERSIVE_STATUS }, { frameId: 0 });
+    if (resp?.ok) return resp;
+    return { ok: false };
+  } catch {
+    return { ok: false };
+  }
+}
+
+async function refreshImmersiveStatus() {
+  const tab = await getActiveTab();
+  try {
+    await ensureInjected(tab);
+    const resp = await getImmersiveStatus(tab);
+    if (!resp?.ok) {
+      setImmersiveButtonState(false, false);
+      return;
+    }
+    setImmersiveButtonState(!!resp.active, !!resp.initializing);
+  } catch (e) {
+    setImmersiveButtonState(false, false);
+    // do not spam errors here
+  }
+}
+
+async function toggleImmersive() {
+  const tab = await getActiveTab();
+  try {
+    await ensureInjected(tab);
+    const status = await getImmersiveStatus(tab);
+    const active = !!status?.active;
+    if (status?.initializing) {
+      setStatus('沉浸翻译正在启动中…', true);
+      return;
+    }
+    setImmersiveButtonState(active, true);
+    if (active) {
+      await chrome.tabs.sendMessage(tab.id, { type: MSG.STOP_IMMERSIVE_TRANSLATION }, { frameId: 0 });
+      setStatus('已停止沉浸式翻译');
+    } else {
+      await chrome.tabs.sendMessage(tab.id, { type: MSG.START_IMMERSIVE_TRANSLATION }, { frameId: 0 });
+      setStatus('已开启沉浸式翻译（将持续翻译新增内容）');
+    }
+  } catch (e) {
+    setStatus(e.message || '沉浸翻译切换失败', false);
+  } finally {
+    await refreshImmersiveStatus();
+  }
+}
+
 function openOptions() {
   try {
     chrome.runtime.openOptionsPage();
@@ -135,7 +206,9 @@ function openOptions() {
 document.addEventListener('DOMContentLoaded', () => {
   $('translatePageBtn')?.addEventListener('click', triggerTranslatePage);
   $('translateSelBtn')?.addEventListener('click', triggerTranslateSelection);
+  $('toggleImmersiveBtn')?.addEventListener('click', toggleImmersive);
   $('saveBtn')?.addEventListener('click', saveConfig);
   $('openOptionsBtn')?.addEventListener('click', openOptions);
   loadConfig();
+  refreshImmersiveStatus();
 });
